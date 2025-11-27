@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from routes.user import router as user_router
-from routes.url_create_redirect import router
+from src.routes.user import router as user_router
+from src.routes.url_create_redirect import router
 
 app = FastAPI()
 

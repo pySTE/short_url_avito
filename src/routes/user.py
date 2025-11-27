@@ -2,11 +2,11 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from database.connection import get_db
-from schemas.user import User
-from models.user import User as UserDb
-from utils.encrypt_password import create_hash
-from utils.jwt_handler import create_access_token
+from src.database.connection import get_db
+from src.schemas.user import User
+from src.models.user import User as UserDb
+from src.utils.encrypt_password import create_hash
+from src.utils.jwt_handler import create_access_token
 
 router = APIRouter(prefix="/user")
 

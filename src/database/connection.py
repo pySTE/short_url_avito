@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from config import DATABASE_URL
+from src.config import DATABASE_URL
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base

@@ -1,28 +1,39 @@
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.connection import get_db
-from utils.generate import generate_unique_id
-from models.url import Urls
-from utils.jwt_handler import verify_access_token
-from config import MAIN_URL
+from src.database.connection import get_db
+from src.utils.generate import generate_unique_id
+from src.models.url import Urls
+from src.utils.jwt_handler import verify_access_token
+from src.config import MAIN_URL
 
 router = APIRouter()
 
 
 @router.post("/create_url")
-async def create_url(url: str, token: str | None, db: AsyncSession = Depends(get_db)):
+async def create_url(url: str, custom_url: str | None = None, token: str | None = None, db: AsyncSession = Depends(get_db)):
+    response = httpx.get(url)
+    if response.status_code == 404:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="URL не найдена")
     try:
         email = verify_access_token(token).get('user')
     except Exception as e:
         email = None
-    new_url = await generate_unique_id()
-    if email:
-        url_model = Urls(new_url=new_url, url=url, email=email)
+    if custom_url:
+        new_url = custom_url
+        if email:
+            url_model = Urls(new_url=custom_url, url=url, email=email)
+        else:
+            url_model = Urls(new_url=custom_url, url=url)
     else:
-        url_model = Urls(new_url=new_url, url=url)
+        new_url = await generate_unique_id()
+        if email:
+            url_model = Urls(new_url=new_url, url=url, email=email)
+        else:
+            url_model = Urls(new_url=new_url, url=url)
     db.add(url_model)
     await db.commit()
     return {"url": f"{MAIN_URL}/red/{new_url}"}
